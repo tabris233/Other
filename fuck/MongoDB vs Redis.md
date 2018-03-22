@@ -8,7 +8,7 @@ MongoDB和Redis都是NoSQL，采用结构型数据存储。二者在使用场景
 -|-|-|-
 实现语言	|c++	|c/c++	|-
 协议	|BSON,自定义二进制	|类telnet	|-
-性能	|依赖内存,TPS较高	|依赖内存,TPS非常高	|Redis优于MongoDB
+性能	|依赖内存,TPS{(transaction per second)代表每秒执行的事务数量}较高	|依赖内存,TPS非常高	|Redis优于MongoDB
 可操作性	|丰富的数据表达,索引;最类似于关系型数据库,支持丰富的查询语句	|数据丰富,较少的IO	|MongoDB优于Redis
 内存及存储	|适合大数据量存储,依赖系统虚拟内存,采用镜像文件存储;内存占用率比较高,官方建议独立部署在64位系统	|Redis2.0后支持虚拟内存特性(VM) 突破物理内存限制;数据可以设置时效性,类似于memcache	|不同的应用场景,各有千秋
 可用性|	支持master-slave,replicatset(内部采用paxos选举算法,自动故障恢复),auto sharding机制,对客户端屏蔽了故障转移和切片机制	|依赖客户端来实现分布式读写;主从复制时,每次从节点重新连接主节点都要依赖整个快照,无增量复制;不支持auto sharding,需要依赖程序设定一致性hash机制	|MongoDB优于Redis；单点问题上,MongoDB应用简单,相对用户透明,Redis比较复杂,需要客户端主动解决.(MongoDB一般使用replicasets和sharding相结合,replicasets侧重高可用性以及高可靠,sharding侧重性能,水平扩展)
