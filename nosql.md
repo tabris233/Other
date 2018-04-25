@@ -23,7 +23,7 @@ By providing a generic Store implementation, abstracted from specific storage me
 
 fs2-blobstore is a minimal, idiomatic, stream-based Scala interface for key/value store implementations with the assumption that any key/value store must provide these 6 basic functions:
 
->译:fs2-blobstore 是一个最小的,惯用的,基于数据流的Scala的接口,用于key/value存储实现与任何key/value存储必须提供者些6种基本功能的假设:
+>译:fs2-blobstore 是一个最小的,惯用的,基于数据流的Scala的接口,用于key/value存储实现,采取的任何key/value存储必须提供以下6种基本功能:
 
 - List keys (列出键)
 - Get key’s value (得到键值)
@@ -45,7 +45,7 @@ One of the main goals for fs2-blobstore is to provide scalable code that would a
 
 The first way to provide scale in a data pipeline is to avoid loading incoming data files in memory, off course, but also avoid writing to disk as much as possible, especially for intermediate steps.
 
->译:第一种方式是提供scala在一个数据管道中来避免在内存中加载传入的数据文件,(笔误的当然 还是 偏离轨道?),但也要避免写如磁盘等等,特别是一些中间步骤.
+>译:第一种方式是提供scala在一个数据管道中来避免在内存中加载传入的数据文件,(笔误的当然 还是 偏离轨道?),但也要避免写入磁盘等等,特别是一些中间步骤.
 
 The initial pipeline implementation would make heavy use of temporary local disk storage before uploading files to the permanent S3 location for archiving. While yes, disks are cheap these days, this approach of using local storage as a staging area for all files transferred through the pipeline would eventually limit the ability to process files concurrently, as this temporary storage would get filled with intermediate transformations to the data and increases processing time as it reads and write data to filesystem.
 
@@ -53,7 +53,7 @@ The initial pipeline implementation would make heavy use of temporary local disk
 
 In a stream-based store interface built with Functional Streams for Scala (fs2) we can transfer the stream of bytes coming from SFTP into the stream of bytes going into S3 without ever storing these bytes in the local filesystem. There are times when it is required to use local filesystem for intermediate storage, but, by avoiding unnecessary writes we allow for larger scale overall.
 
->译:用`Functional Streams for Scala(fs2)`构建的基于流的存储接口中我们可以将来自SFTP的字节流传递给S3而不会将这些字节存储在本地文件系统.时需要使用本地文件系统进行中间存储,但是,通过避免不必要的写入,我们可以在整体上扩大规模.
+>译:用`Functional Streams for Scala(fs2)`构建的基于流的存储接口中我们可以将来自SFTP的字节流传递给S3而不会将这些字节存储在本地文件系统时需要使用本地文件系统进行中间存储,但是,通过避免不必要的写入,我们可以在整体上扩大规模.
 
 ### Modeling a Key/Value Store
 >**建立一个键值存储模型**
@@ -67,25 +67,27 @@ The key is modeled as:
 >key的建模为:
 
 ```scala
-case class Path( // 类似于构造函数 "()"里面的是参数 VariableName : DataType
-  root: String,  
-  key: String,
-  size: Option[Long], //Option 是选项类型
-  isDir: Boolean,
-  lastModified: Option[Date] 
+case class Path( // 类似于构造函数 "()"里面的是参数 
+  //变量声明方式 =>  变量名 : 数据类型
+  root: String,                // 
+  key: String,                 // 
+  size: Option[Long],          //  Option 是选项类型
+  isDir: Boolean,              // 
+  lastModified: Option[Date]   // 
 )
 ```
 
 Functions in the Store interface that receive a Path (get, put, copy, move, remove) assume that only root and key values are mandatory, there is no guarantee that the other attributes of Path would be accurate: size, isDir, lastModified. On the other hand, when a Store implements the list function, it is expected that all 3 fields will be present in the response.
 
->译:Store的接口方法接受`Path(get, put, copy, move, remove)`确保只有`root`和`key values`是的,不能保证Path中的其他属性`(size, isDir, lastModified)`也是准确的.换句话说,当存储实现列表方法是,估计这3个字段全部present在响应中.
+>译:Store接口方法有`Path(get, put, copy, move, remove)`确保只有`root`和`key values`是准确的,不能保证Path中的其他属性`(size, isDir, lastModified)`也是准确的.换句话说,当存储实现列表方法时,在响应中估计这3个字段全部present.
 
 Given that the key is modeled as Path and value is modeled as bytes, we can define the Store interface with the six basic functions listed above like this:
 
->译: 假设key被建模为Path,并且值被建模为字节,我们可以定义存储接口如下列六个寄出方法.
+>译: 假设key被建模为Path,并且值被建模为字节,我们可以定义Store接口有下列六个基础方法.
 
 ```scala
-trait Store[F[_]] {  //trait 类似于Java中的接口,但比接口更强大 ·def 函数名(参数):返回值类型·
+trait Store[F[_]]{ //trait(特征) 类似于Java中的接口,但比接口更强大· 
+  //函数声明方式 => def 函数名([参数列表]):返回值类型
   def list(path: Path): fs2.Stream[F, Path]
   def get(path: Path, chunkSize: Int): fs2.Stream[F, Byte]
   def put(path: Path): fs2.Sink[F, Byte]
@@ -119,10 +121,7 @@ Now that we have defined the Store interface we can get to more complex function
 >译:现在已经定义了Store接口,我们可以使用更复杂的方法来演示组合Streams的能力.回到**LendUp**的数据管道,一个很普通的用例是通过存储来传输文件,无论`Store`怎么实现,传输一个文件都可以通过以下方式实现:
 
 ```scala
-def transferFile[F[_]](
-  srcStore: Store[F],
-  dstStore: Store[F],
-  path: Path): fs2.Stream[F, Unit] = {
+def transferFile[F[_]](srcStore: Store[F],dstStore: Store[F]，path: Path): fs2.Stream[F, Unit] = {
   srcStore.list(path).filter(!_.isDir).evalMap { p =>
     val contents: fs2.Stream[F, Byte] = store.get(p, 4096)
     val sink: fs2.Sink[F, Byte] = dstStore.put(p)
