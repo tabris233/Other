@@ -1,3 +1,4 @@
+- 流存储
 - 管道
 - Amazon S3
 - 
@@ -27,10 +28,9 @@ fs2-blobstore is a minimal, idiomatic, stream-based Scala interface for key/valu
 - List keys (列出键)
 - Get key’s value (得到键值)
 - Put value in key (将值放入键中)
-- Copy key value to some other key(将键值复制给其他键)
-- Move key value to some other key(将键值移至其他键)
-- Remove key
-(删除键)
+- Copy key value to some other key (将键值复制给其他键)
+- Move key value to some other key (将键值移至其他键)
+- Remove key (删除键)
 
 fs2-blobstore provides scalability by relying on fs2 streams resource safety and concurrency primitives while providing a flexible abstraction that applies to different storage mechanisms.
 
@@ -67,12 +67,12 @@ The key is modeled as:
 >key的建模为:
 
 ```scala
-case class Path(  
-  root: String,
+case class Path( // 类似于构造函数 "()"里面的是参数 VariableName : DataType
+  root: String,  
   key: String,
-  size: Option[Long],
+  size: Option[Long], //Option 是选项类型
   isDir: Boolean,
-  lastModified: Option[Date]
+  lastModified: Option[Date] 
 )
 ```
 
@@ -85,7 +85,7 @@ Given that the key is modeled as Path and value is modeled as bytes, we can defi
 >译: 假设key被建模为Path,并且值被建模为字节,我们可以定义存储接口如下列六个寄出方法.
 
 ```scala
-trait Store[F[_]] {
+trait Store[F[_]] {  //trait 类似于Java中的接口,但比接口更强大 ·def 函数名(参数):返回值类型·
   def list(path: Path): fs2.Stream[F, Path]
   def get(path: Path, chunkSize: Int): fs2.Stream[F, Byte]
   def put(path: Path): fs2.Sink[F, Byte]
@@ -97,7 +97,7 @@ trait Store[F[_]] {
 
 These six functions can be composed to provide any functionality required when manipulating data across stores. Note that the get function requires the “chunk size” in the basic interface but by importing Store syntax you can use functions like these that default to 4k buffer size:
 
-> 在存储键操作数据时这六个方法被组合起来能够提供任何所需的功能.注意在基础接口中get方法需要"chunk size"但是通过提供Store语法你可以使用默认缓冲区大小为4k的方法.
+>译:在存储键操作数据时这六个方法被组合起来能够提供任何所需的功能.注意在基础接口中get方法需要"chunk size"但是通过提供Store语法你可以使用默认缓冲区大小为4k的方法.
 
 ```scala
 // get Stream with default 4k chunk size
