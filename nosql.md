@@ -1,3 +1,8 @@
+- 管道
+- Amazon S3
+- 
+
+
 # A Functional Interface for Key/Value Store
 >**键/值存储的功能接口**
 
@@ -5,7 +10,7 @@ Stew O'Connor, Sr Principal SWE • Mengxi Lu, Sr Principal SWE • Rolando Manr
 
 At LendUp, we have the need to run multiple pipelines that transfer batched data across different systems via SFTP and Amazon S3 and, very commonly, storing temporary data transformations in local filesystems; all these storage mechanisms behave very similar and can be modeled by a common interface.
 
->译:在LendUp,我们需要运行多个管道,这些管道通过SFTP(source file transfer p)和Amazon S3在不同系统间传输批量数据,并且非常常见的是将临时数据转换存储在本地文件系统中;所有这些存储机制的行为非常的相似,并可以通过通用结构来建模.
+>译:在LendUp,我们需要运行多个管道,这些管道通过SFTP(Secure File Transfer Protocol)和Amazon S3在不同系统间传输批量数据,并且非常常见的是将临时数据转换存储在本地文件系统中;所有这些存储机制的行为非常的相似,并可以通过通用结构来建模.
 
 Initial implementations using specific client libraries for each storage mechanism gradually gravitated towards bad software development practices that made code hard to test (i.e. required S3/SFTP credentials) and reduced performance and scalability limited by host memory or filesystem.
 
