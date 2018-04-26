@@ -1,8 +1,3 @@
-- 流存储
-- 管道
-- Amazon S3
-- 
-
 
 # A Functional Interface for Key/Value Store
 >**键/值存储的功能接口**
@@ -45,7 +40,7 @@ One of the main goals for fs2-blobstore is to provide scalable code that would a
 
 The first way to provide scale in a data pipeline is to avoid loading incoming data files in memory, off course, but also avoid writing to disk as much as possible, especially for intermediate steps.
 
->译:第一种方式是提供scala在一个数据管道中来避免在内存中加载传入的数据文件,(笔误的当然 还是 偏离轨道?),但也要避免写入磁盘等等,特别是一些中间步骤.
+>译:第一种方式是在一个数据管道中提供scala来避免在内存中加载传入的数据文件,(笔误的当然 还是 偏离轨道?),但也要避免写入磁盘等等,特别是一些中间步骤.
 
 The initial pipeline implementation would make heavy use of temporary local disk storage before uploading files to the permanent S3 location for archiving. While yes, disks are cheap these days, this approach of using local storage as a staging area for all files transferred through the pipeline would eventually limit the ability to process files concurrently, as this temporary storage would get filled with intermediate transformations to the data and increases processing time as it reads and write data to filesystem.
 
